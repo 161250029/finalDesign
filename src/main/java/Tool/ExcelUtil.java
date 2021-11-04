@@ -229,12 +229,24 @@ public class ExcelUtil {
             int row_total = sheet.getRows();
             for (int i = 1 ; i < row_total ; i ++) {
                 jxl.Cell[] cells = sheet.getRow(i);
-                String clazz = cells[6].getContents();
-                Func func = new Func(clazz , cells[7].getContents() , cells[8].getContents());
-                Location location = new Location(cells[5].getContents(),
-                        Integer.parseInt(cells[8].getContents()) , Integer.parseInt(cells[8].getContents()));
-                boolean isPositive = Boolean.parseBoolean(cells[11].getContents());
+                String packageName = cells[0].getContents();
+                String absolutePath = cells[1].getContents();
+                String fileName = cells[3].getContents();
+                String type = cells[4].getContents();
+                String desc = cells[5].getContents();
+                String priority = cells[6].getContents();
+                String clazz = cells[7].getContents();
+                Func func = new Func(clazz , cells[8].getContents() , cells[9].getContents());
+                Location location = new Location(cells[2].getContents(),
+                        Integer.parseInt(cells[10].getContents()) , Integer.parseInt(cells[11].getContents()));
+                boolean isPositive = Boolean.parseBoolean(cells[12].getContents());
                 AlarmVO alarmVO = new AlarmVO();
+                alarmVO.setPackageName(packageName);
+                alarmVO.setAbsolutePath(absolutePath);
+                alarmVO.setFileName(fileName);
+                alarmVO.setType(type);
+                alarmVO.setDesc(desc);
+                alarmVO.setPriority(priority);
                 alarmVO.setFunc(func);
                 alarmVO.setLocation(location);
                 alarmVO.setPositive(isPositive);
