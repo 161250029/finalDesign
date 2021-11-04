@@ -9,8 +9,8 @@ public interface Strategy {
     /**
      * 标记策略
      * @param targetMap
-     * @param standardMap
+     * @param standardMaps
      * @return
      */
-    public void label(Map<String , List<AlarmDO>> targetMap , Map<String , List<AlarmDO>> standardMap);
+    public void label(Map<String , List<AlarmDO>> targetMap , List<Map<String , List<AlarmDO>>> standardMaps);
 }

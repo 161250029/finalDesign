@@ -8,21 +8,27 @@ import java.util.Map;
 
 public class TextBasedStrategy implements Strategy{
     @Override
-    public void label(Map<String, List<AlarmDO>> targetMap, Map<String, List<AlarmDO>> standardMap) {
+    public void label(Map<String, List<AlarmDO>> targetMap, List<Map<String, List<AlarmDO>>> standardMaps) {
         for (String filename : targetMap.keySet()) {
             // 待标记文件的警告
             List<AlarmDO> targetDOs = targetMap.get(filename);
             // 对标文件中的警告
-            List<AlarmDO> standardDOs = standardMap.get(filename);
-            if (standardDOs == null) {
-                continue;
-            }
             for (AlarmDO targetDO : targetDOs) {
-                for (AlarmDO standardDO : standardDOs) {
-                    if (isSame(targetDO , standardDO)) {
-                        targetDO.setPositive(false);
-                        break;
+                int count = 0;
+                for (Map<String , List<AlarmDO>> standardMap : standardMaps) {
+                    List<AlarmDO> standardDOs = standardMap.get(filename);
+                    if (standardDOs == null) {
+                        continue;
                     }
+                    for (AlarmDO standardDO : standardDOs) {
+                        if (isSame(targetDO , standardDO)) {
+                            count ++;
+                            break;
+                        }
+                    }
+                }
+                if (count == standardMaps.size()) {
+                    targetDO.setPositive(false);
                 }
             }
         }

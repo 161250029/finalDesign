@@ -12,23 +12,27 @@ public class HashBasedStrategy implements Strategy{
 
     public static final int Threshold = 50;
     @Override
-    public void label(Map<String, List<AlarmDO>> targetMap, Map<String, List<AlarmDO>> standardMap) {
+    public void label(Map<String, List<AlarmDO>> targetMap, List<Map<String, List<AlarmDO>>> standardMaps) {
         List<AlarmDO> targetDOs = new ArrayList<>();
-        List<AlarmDO> standardDOs = new ArrayList<>();
-
         targetMap.forEach((key, value) -> {
             targetDOs.addAll(targetMap.get(key));
         });
-        standardMap.forEach((key , value) -> {
-            standardDOs.addAll(standardMap.get(key));
-        });
-
         for (AlarmDO targetDO : targetDOs) {
-            for (AlarmDO standardDO : standardDOs) {
-                if (isSame(targetDO , standardDO)) {
-                    targetDO.setPositive(false);
-                    break;
+            int count = 0;
+            for (Map<String, List<AlarmDO>> standardMap : standardMaps) {
+                List<AlarmDO> standardDOs = new ArrayList<>();
+                standardMap.forEach((key , value) -> {
+                    standardDOs.addAll(standardMap.get(key));
+                });
+                for (AlarmDO standardDO : standardDOs) {
+                    if (isSame(targetDO , standardDO)) {
+                        count ++;
+                        break;
+                    }
                 }
+            }
+            if (count == standardMaps.size()) {
+                targetDO.setPositive(false);
             }
         }
     }

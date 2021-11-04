@@ -30,7 +30,7 @@ public class PrepareData {
     private Map<String , List<String>> projectMap = new HashMap<>();
 
     public static void main(String[] args) {
-        new PrepareData().doSlice();
+        new PrepareData().run();
     }
 
     private void init() {
@@ -143,6 +143,7 @@ public class PrepareData {
             targetMap.put(targetDO.getClazz(), alarmDOList);
         });
 
+        List<Map<String , List<AlarmDO>>> standardMaps = new ArrayList<>();
         standardDOLists.forEach(standardDOList -> {
             Map<String , List<AlarmDO>> standardMap = new HashMap<>();
             standardDOList.forEach(standardDO -> {
@@ -150,10 +151,11 @@ public class PrepareData {
                 alarmDOList.add(standardDO);
                 standardMap.put(standardDO.getClazz() , alarmDOList);
             });
-            locationBasedStrategy.label(targetMap , standardMap);
-            textBasedStrategy.label(targetMap , standardMap);
-            hashBasedStrategy.label(targetMap , standardMap);
+            standardMaps.add(standardMap);
         });
+        locationBasedStrategy.label(targetMap , standardMaps);
+        textBasedStrategy.label(targetMap , standardMaps);
+        hashBasedStrategy.label(targetMap , standardMaps);
         return targetMap;
     }
 

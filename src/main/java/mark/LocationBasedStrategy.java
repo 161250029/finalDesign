@@ -9,14 +9,20 @@ import java.util.Map;
 public class LocationBasedStrategy implements Strategy{
     public static final int Threshold = 3;
     @Override
-    public void label(Map<String, List<AlarmDO>> targetMap, Map<String, List<AlarmDO>> standardMap) {
+    public void label(Map<String, List<AlarmDO>> targetMap, List<Map<String, List<AlarmDO>>> standardMaps) {
         targetMap.forEach((targetFile , targetDOs) -> {
-            List<AlarmDO> standardDOs = standardMap.get(targetFile);
             for (int i = 0 ; i < targetDOs.size() ; i ++) {
-                if (standardDOs == null || i > standardDOs.size() - 1) {
-                    break;
+                int count = 0;
+                for (Map<String, List<AlarmDO>> standardMap : standardMaps) {
+                    List<AlarmDO> standardDOs = standardMap.get(targetFile);
+                    if (standardDOs == null || i > standardDOs.size() - 1) {
+                        break;
+                    }
+                    if (isSame(targetDOs.get(i) , standardDOs.get(i))) {
+                        count ++;
+                    }
                 }
-                if (isSame(targetDOs.get(i) , standardDOs.get(i))) {
+                if (count == standardMaps.size()) {
                     targetDOs.get(i).setPositive(false);
                 }
             }
