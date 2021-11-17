@@ -1,5 +1,6 @@
 package joanacore;
 
+import astcore.SliceHandler;
 import com.ibm.wala.cfg.exc.intra.MethodState;
 import com.ibm.wala.classLoader.*;
 import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
@@ -80,11 +81,13 @@ public class JoanaSlicer implements Slicer {
         } catch (NotFoundException e) {
             throw new SlicerException(e.getMessage(), e);
         }
-        Collection<SDGNode> slice = jSlicer.slice(sinkNodes);
+        Collection<SDGNode> slice = jSlicer.slice(sinkNodes , line);
 //        List<SDGNode> sortedSlice=new DFSSort(slice, config.cgPruner).getSortedNodes(func.getClazz()+"."+func.getMethod()+func.getSig());
 //        System.out.println(result);
-        for (SDGNode node : slice)
+        for (SDGNode node : slice) {
+//            System.out.println(node.getSource() + "_" + node.getSr());
             slices.add(node.getSr());
+        }
         List<Integer> result = new ArrayList<>(slices);
         return result;
     }
@@ -253,16 +256,48 @@ public class JoanaSlicer implements Slicer {
         return m;
     }
 
-    public static void main(String[] args) throws ClassHierarchyException, IOException, SlicerException {
-        List<File> apps = new ArrayList<>();
-        apps.add(new File("D:\\Benchmark-master\\Benchmark-master\\target\\benchmark.war"));
-        JoanaSlicer slicer = new JoanaSlicer();
-        slicer.config(apps,null , null);
-        System.out.println(slicer.computeSlice(new Func("org.owasp.benchmark.testcode.BenchmarkTest01602" , "doPost" , "(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V") ,
-                new Location("org/owasp/benchmark/testcode/BenchmarkTest01602.java" ,51 , 51)));
+    public static void test1() {
+//                List<File> apps = new ArrayList<>();
+//        apps.add(new File("D:\\Benchmark-master\\Benchmark-master\\target\\benchmark.war"));
+//        JoanaSlicer slicer = new JoanaSlicer();
+//        slicer.config(apps,null , null);
+//        System.out.println(slicer.computeSlice(new Func("org.owasp.benchmark.testcode.BenchmarkTest01602" , "doPost" , "(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V") ,
+//                new Location("org/owasp/benchmark/testcode/BenchmarkTest01602.java" ,51 , 51)));
 //        System.out.println(slicer.computeSliceByteCode(new Func("org.owasp.benchmark.testcode.BenchmarkTest01602" , "doPost" , "(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V") ,
 //                new Location("org/owasp/benchmark/testcode/BenchmarkTest01602.java" ,51 , 51)));
 //        System.out.println(slicer.computeSlice(new Func("org.owasp.benchmark.testcode.BenchmarkTest00883" , "doPost" , "(Ljavax/servlet/http/HttpServletRequest;Ljavax/servlet/http/HttpServletResponse;)V") ,
 //                new Location("org/owasp/benchmark/testcode/BenchmarkTest00883.java" , 57 , 57)));
+    }
+
+    public static void test2() {
+//        List<File> test = new ArrayList<>();
+//        test.add(new File("D:\\DataSet\\commons-bcel\\commons-bcel-8804a93690cd4be12024345225e0934d66aa4cf6\\commons-bcel-8804a93690cd4be12024345225e0934d66aa4cf6\\target\\bcel-6.5.1-SNAPSHOT.jar"));
+//        JoanaSlicer slicer = new JoanaSlicer();
+//        slicer.config(test , null , null);
+//        System.out.println(slicer.computeSlice(new Func("org.apache.bcel.util.BCELFactory" , "visitAllocationInstruction" , "(Lorg/apache/bcel/generic/AllocationInstruction;)V") ,
+//                new Location("org/apache/bcel/util/BCELFactory.java" , 188 , 192)));
+//        List<Integer> slices = new ArrayList<>();
+//        slices = slicer.computeSlice(new Func("org.apache.bcel.util.BCELFactory" , "visitAllocationInstruction" , "(Lorg/apache/bcel/generic/AllocationInstruction;)V") ,
+//                new Location("org/apache/bcel/util/BCELFactory.java" , 188 , 192));
+//        System.out.println(slices);
+//        String str = SliceHandler.sliceFile(new File("D:\\DataSet\\commons-bcel\\commons-bcel-8804a93690cd4be12024345225e0934d66aa4cf6\\commons-bcel-8804a93690cd4be12024345225e0934d66aa4cf6\\src\\main\\java\\org\\apache\\bcel\\util\\BCELFactory.java") ,
+//                "visitAllocationInstruction" ,  slices);
+//        System.out.println(str);
+    }
+
+    public static void main(String[] args) throws ClassHierarchyException, IOException, SlicerException {
+        List<File> test = new ArrayList<>();
+        test.add(new File("D:\\DataSet\\commons-scxml\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\target\\commons-scxml2-2.0-SNAPSHOT.jar"));
+        JoanaSlicer slicer = new JoanaSlicer();
+        slicer.config(test , null , null);
+        List<Integer> slices = new ArrayList<>();
+        slices = slicer.computeSlice(new Func("org.apache.commons.scxml2.test.StandaloneUtils" , "execute" , "(Ljava/lang/String;Lorg/apache/commons/scxml2/Evaluator;)V") ,
+                new Location("org/apache/commons/scxml2/test/StandaloneUtils.java" , 89 , 89));
+        System.out.println(slices);
+        String str = SliceHandler.sliceFile(new File("D:\\DataSet\\commons-scxml\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\src\\main\\java\\org\\apache\\commons\\scxml2\\test\\StandaloneUtils.java") ,
+                "execute" ,  slices);
+        System.out.println(str);
+
+
     }
 }

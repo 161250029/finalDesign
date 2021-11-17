@@ -5,6 +5,7 @@ import Entity.AlarmVO;
 import Tool.DomTool;
 import Tool.ExcelUtil;
 import Tool.FileTool;
+import astcore.SliceHandler;
 import com.ibm.wala.ipa.cha.ClassHierarchyException;
 import joanacore.JoanaSlicer;
 import joanacore.exception.SlicerException;
@@ -30,7 +31,7 @@ public class PrepareData {
     private Map<String , List<String>> projectMap = new HashMap<>();
 
     public static void main(String[] args) {
-        new PrepareData().run();
+        new PrepareData().sliceFuncBody();
     }
 
     private void init() {
@@ -103,7 +104,8 @@ public class PrepareData {
                         slicer.config(apps,null , null);
                         List<Integer> slices = slicer.computeSlice(alarmVO.getFunc(), alarmVO.getLocation());
 //                        String slicesContent = SliceHandler.sliceFile(new File(alarmVO.getAbsolutePath()) , alarmVO.getFunc().getMethod() , slices);
-                        FileTool.write_some_lines(slices ,alarmVO.getAbsolutePath() ,
+                        String content = SliceHandler.sliceFile(new File(alarmVO.getAbsolutePath()) , alarmVO.getFunc().getMethod() ,slices);
+                        FileTool.write_content(
                                 Config.sliceDirPath +  generateFileName(alarmVO.getPackageName() ,
                                 alarmVO.getFileName().split("\\.")[0] ,
                                 alarmVO.getType(),
@@ -112,16 +114,47 @@ public class PrepareData {
 //                                alarmVO.getFunc().getMethod(),
                                 String.valueOf(alarmVO.getLocation().getStartLine()),
                                 String.valueOf(alarmVO.getLocation().getEndLine()),
-                                String.valueOf(alarmVO.isPositive())));
+                                String.valueOf(alarmVO.isPositive())) , content);
                     } catch (ClassHierarchyException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (SlicerException e) {
                         e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println(
+                                generateFileName(alarmVO.getPackageName() ,
+                                        alarmVO.getFileName().split("\\.")[0] ,
+                                        alarmVO.getType(),
+                                        alarmVO.getDesc(),
+                                        alarmVO.getPriority(),
+//                                alarmVO.getFunc().getMethod(),
+                                        String.valueOf(alarmVO.getLocation().getStartLine()),
+                                        String.valueOf(alarmVO.getLocation().getEndLine()),
+                                        String.valueOf(alarmVO.isPositive()))
+                        );
                     }
                 });
             });
+        });
+    }
+
+    public void sliceFuncBody() {
+        String sliceDataDirPath = Config.sliceDirPath;
+        List<String> sliceDataFilePaths = FileTool.findPath(sliceDataDirPath , "java");
+        sliceDataFilePaths.forEach(sliceDataFilePath -> {
+            try {
+                String funcBody = SliceHandler.getFuncBody(new File(sliceDataFilePath));
+                if (funcBody == null) {
+                    return;
+                }
+                FileTool.write_content(Config.sliceFuncDirPath + sliceDataFilePath.split("\\\\")
+                [sliceDataFilePath.split("\\\\").length - 1] , funcBody);
+            } catch (Exception e) {
+                System.out.println(sliceDataFilePath);
+                e.printStackTrace();
+            }
         });
     }
 

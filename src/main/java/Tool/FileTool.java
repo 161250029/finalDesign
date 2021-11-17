@@ -80,6 +80,9 @@ public class FileTool {
      */
     public static List<String> readRangeLine(String file_path , int start , int end) {
         List<String> contents = read(file_path);
+        if (start <= 0 || end > contents.size() || start > end) {
+            return null;
+        }
         return new ArrayList<>(contents.subList(start - 1 , end));
     }
 

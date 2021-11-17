@@ -84,12 +84,28 @@ public class JoanaSDGSlicer {
         return result;
     }
 
+    public Collection<SDGNode> slice(HashSet<SDGNode> points , Location line) {
+        Collection<SDGNode> result = slicer.slice(points);
+        List<SDGNode> toRemove = new ArrayList<>();
+        boolean verbose = false;
+        for (SDGNode n : result) {
+            if (isRemoveNode(n) || !n.getSource().equals(line.getSourceFile())) {
+                toRemove.add(n);
+            } else if (verbose) {
+                System.out.println(n.getId() + "\t" + n.getLabel() + "\t" + n.getType() + "\t" + n.getKind() + "\t"
+                        + n.getOperation() + "\t" + n.getSr() + "\t" + n.getSource() + "\t" + n.getBytecodeIndex());
+            }
+        }
+        result.removeAll(toRemove);
+        return result;
+    }
+
 
     /**
      * 若该节点满足一下条件任意一条，则被删去：
      * 源代码为空
      * Java Rumtime节点
-     * Node.getSr()获取代码在源代码的那行，若<0则被删去
+     * Node.getSr()获取代码在源代码的那行，若<=0则被删去
      * isExcluded()在黑名单上的类被删去（如wala的node？）
      * Exception的Label
      * node.getBytecodeIndex() 不大懂
@@ -100,7 +116,7 @@ public class JoanaSDGSlicer {
      */
     public boolean isRemoveNode(final SDGNode node) {
         return node.getSource() == null || (node.getClassLoader() != null && node.getClassLoader().equals("Primordial"))
-                || node.getSr() < 0 || isExcluded(node.getSource()) || node.getLabel().contains("_exception_")
+                || node.getSr() <= 0 || isExcluded(node.getSource()) || node.getLabel().contains("_exception_")
                 || node.getLabel().contains("fake")
                 || (node.getBytecodeIndex() < -2 && node.getOperation() != SDGNode.Operation.ASSIGN) || isAbstractNode(node) ;
     }
