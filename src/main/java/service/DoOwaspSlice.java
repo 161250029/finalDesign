@@ -1,18 +1,18 @@
 package service;
 
 
-import Entity.BugInfo;
-import Entity.Defects4j_Info;
-import Entity.OWASP;
-import Tool.CsvTool;
-import Tool.DomTool;
-import Tool.ExcelUtil;
-import Tool.FileTool;
+import entity.BugInfo;
+import entity.Defects4j_Info;
+import entity.OWASP;
+import tool.CsvTool;
+import tool.DomTool;
+import tool.ExcelUtil;
+import tool.FileTool;
 import com.ibm.wala.ipa.cha.ClassHierarchyException;
-import joanacore.JoanaSlicer;
-import joanacore.datastructure.Func;
-import joanacore.datastructure.Location;
-import joanacore.exception.SlicerException;
+import joanaCore.JoanaSlicer;
+import joanaCore.datastructure.Func;
+import joanaCore.datastructure.Location;
+import joanaCore.exception.SlicerException;
 import jxl.read.biff.BiffException;
 
 import java.io.File;
