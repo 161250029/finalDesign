@@ -39,13 +39,22 @@ public class LocationBasedStrategy implements Strategy{
         int distance1 = targetDO.getEnd() - targetDO.getStart();
         int distance2 = standardDO.getEnd() - standardDO.getStart();
         // 如果是匹配对
-        if (targetContents.retainAll(standardContents)) {
-            System.out.println("locationbased " + "匹配对 " + targetDO.getClazz() + " " + standardDO.getClazz() + " " + (distance1 == distance2));
-            return distance1 == distance2;
+        try {
+            if (targetContents.retainAll(standardContents)) {
+                System.out.println("locationbased " + "匹配对 " + targetDO.getClazz() + " " + standardDO.getClazz() + " " + (distance1 == distance2));
+                return distance1 == distance2;
+            }
+            else {
+                System.out.println("locationbased " + "非匹配对 " + targetDO.getClazz() + " " + standardDO.getClazz() + " " + (Math.abs(distance1 - distance2) <= Threshold));
+                return Math.abs(distance1 - distance2) <= Threshold;
+            }
+        }catch (Exception e) {
+            System.out.println(targetDO.getClazz() + "_" + targetDO.getStart() +
+                    "_" + targetDO.getEnd() + "_" +targetDO.getPackageName());
+            System.out.println(standardDO.getClazz() + "_" + standardDO.getStart() +
+                    "_" + standardDO.getEnd() + "_" +standardDO.getPackageName());
+            e.printStackTrace();
         }
-        else {
-            System.out.println("locationbased " + "非匹配对 " + targetDO.getClazz() + " " + standardDO.getClazz() + " " + (Math.abs(distance1 - distance2) <= Threshold));
-            return Math.abs(distance1 - distance2) <= Threshold;
-        }
+        return false;
     }
 }

@@ -31,7 +31,7 @@ public class PrepareData {
     private Map<String , List<String>> projectMap = new HashMap<>();
 
     public static void main(String[] args) {
-        new PrepareData().sliceFuncBody();
+        new PrepareData().labelNewProject();
     }
 
     private void init() {
@@ -40,9 +40,17 @@ public class PrepareData {
             projectMap.put(projectName , getVersionNames(Config.dirPath + projectName));
         });
         // 按照时间升序排序，时间早的则是旧版本
-        projectMap.forEach((project , versions) -> {
-            sort(project , versions);
-        });
+        boolean versionFlag = false;
+        if (versionFlag) {
+            projectMap.forEach((project , versions) -> {
+                sort(project , versions);
+            });
+        }
+        else {
+            projectMap.forEach((project , versions) -> {
+                Collections.sort(versions);
+            });
+        }
     }
 
     public void run() {
@@ -83,7 +91,47 @@ public class PrepareData {
                 ExcelUtil.writeExcelWithTitle(alarmDOS ,Config.dirPath + project + "\\" + targetVersion + "\\" + targetVersion + "\\" + Config.labelName);
             }
         });
+    }
 
+    public void labelNewProject() {
+        init();
+        projectMap.forEach((project , versions) -> {
+            System.out.println("----标记开始----");
+            for (int i = 0 ; i < versions.size() - 1 ; i ++) {
+                System.out.println("----" + project + ":" + versions.get(i) + "----");
+                String targetVersion = versions.get(i);
+                String targetDirPath = Config.dirPath + project + "\\";
+                List<AlarmDO> targetDOs = DomTool.getAlarmDOs(targetDirPath + targetVersion + ".xml");
+                System.out.println("----计算待标文件路径----");
+                targetDOs.forEach(targetDO -> {
+                    targetDO.setPackageName(targetVersion);
+                    targetDO.setAbsolutePath(FileTool.findFilePath(targetDirPath , targetDO.getSourceFile().replaceAll("/" , "\\\\")));
+//                    System.out.println(targetDO.getAbsolutePath());
+                });
+                //
+                targetDOs = targetDOs.stream().filter(targetDO -> targetDO.getAbsolutePath() != null).collect(Collectors.toList());
+                List<List<AlarmDO>> standardDOLists = new ArrayList<>();
+                for(int j = i + 1 ; j < versions.size() ; j ++) {
+                    String standardVersion = versions.get(j);
+                    String standardDirPath = Config.dirPath + project +  "\\";
+                    List<AlarmDO> standardDOs = DomTool.getAlarmDOs(standardDirPath + standardVersion + ".xml");
+                    System.out.println("----计算基准文件路径----");
+                    standardDOs.forEach(standardDO -> {
+                        standardDO.setPackageName(standardVersion);
+                        standardDO.setAbsolutePath(FileTool.findFilePath(standardDirPath , standardDO.getSourceFile().replaceAll("/" , "\\\\")));
+//                        System.out.println(standardDO.getFileName() + "  " + standardDO.getAbsolutePath());
+                    });
+                    standardDOs = standardDOs.stream().filter(standardDO -> standardDO.getAbsolutePath() != null).collect(Collectors.toList());
+                    standardDOLists.add(standardDOs);
+                }
+                Map<String , List<AlarmDO>> res = mark(targetDOs , standardDOLists);
+                List<AlarmDO> alarmDOS = new ArrayList<>();
+                res.forEach((file , alarmList) -> {
+                    alarmDOS.addAll(alarmList);
+                });
+                ExcelUtil.writeExcelWithTitle(alarmDOS ,Config.dirPath + project + "\\" + targetVersion + "\\" + Config.labelName);
+            }
+        });
     }
 
     public void doSlice() {
@@ -191,8 +239,6 @@ public class PrepareData {
         hashBasedStrategy.label(targetMap , standardMaps);
         return targetMap;
     }
-
-
 
     private void sort(String project , List<String> versions) {
         Collections.sort(versions, new Comparator<String>() {

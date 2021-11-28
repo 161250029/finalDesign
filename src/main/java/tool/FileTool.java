@@ -29,6 +29,27 @@ public class FileTool {
 
     /**
      *
+     * @param dirPath 目录
+     * @param ext 文件后缀
+     * @return 符合后缀的文件名
+     */
+    public static List<String> findFileNames(String dirPath , String ext) {
+        List<String> fileNames = new ArrayList<>();
+        File file = new File(dirPath);
+        File[] file_path = file.listFiles();
+        for (File f : file_path) {
+            if (f.getName().endsWith(ext)) {
+                fileNames.add(f.getName());
+            }
+            if (f.isDirectory()) {
+               fileNames.addAll(findFileNames(f.getAbsolutePath() , ext));
+            }
+        }
+        return fileNames;
+    }
+
+    /**
+     *
      * @param dirPath 目录路径
      * @param fileName 文件名（包含后缀）
      * @return 文件的绝对路径
@@ -46,6 +67,33 @@ public class FileTool {
             }
             else {
                 absoluteFilePath = findFile(child.getAbsolutePath() , fileName);
+                if (absoluteFilePath != null) {
+                    break;
+                }
+            }
+        }
+        return absoluteFilePath;
+    }
+
+    /**
+     *
+     * @param dirPath 目录路径
+     * @param relativePath 文件名（包含后缀）
+     * @return 文件的绝对路径
+     */
+    public static String findFilePath(String dirPath , String relativePath) {
+        File file = new File(dirPath);
+        File[] childs = file.listFiles();
+        String absoluteFilePath = null;
+        for (File child : childs) {
+            if (!child.isDirectory()) {
+                if (child.getAbsolutePath().contains(relativePath)) {
+                    absoluteFilePath = child.getAbsolutePath();
+                    break;
+                }
+            }
+            else {
+                absoluteFilePath = findFilePath(child.getAbsolutePath() , relativePath);
                 if (absoluteFilePath != null) {
                     break;
                 }
@@ -159,5 +207,6 @@ public class FileTool {
         System.out.println(getDirName("D:\\DataSet\\commons-bcel"));
         System.out.println(findFile("D:\\DataSet\\commons-bcel\\commons-bcel-31dcc10240df3b9d0c2abce5610aaaeb04d0b864" ,
                 "Const.java"));
+        System.out.println(findFilePath("D:\\AddProject\\cassandra-all\\2.1.21" , "org/apache/cassandra/cql3/CqlParser.java".replaceAll("/" , "\\\\")));
     }
 }
