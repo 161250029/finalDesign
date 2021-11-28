@@ -2,6 +2,8 @@ package metricsFeature.model;
 
 public class MetricsFeature {
 
+    private String fileName;
+
     private int lineNum;
 
     private int statementNum;
@@ -14,7 +16,8 @@ public class MetricsFeature {
 
     private int depth;
 
-    public MetricsFeature(int lineNum, int statementNum, int branchStatementNum, int callNum, int cycleComplexity, int depth) {
+    public MetricsFeature(String fileName, int lineNum, int statementNum, int branchStatementNum, int callNum, int cycleComplexity, int depth) {
+        this.fileName = fileName;
         this.lineNum = lineNum;
         this.statementNum = statementNum;
         this.branchStatementNum = branchStatementNum;
@@ -72,5 +75,13 @@ public class MetricsFeature {
 
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
