@@ -46,7 +46,19 @@ public class HashBasedStrategy implements Strategy{
 
         List<String> preTargetContents = targetContents.subList(0 , targetDO.getStart());
         List<String> postTargetContents = targetContents.subList(targetDO.getEnd() - 1 , targetContents.size());
+
         List<String> preStandardContents = standardContents.subList(0 , standardDO.getStart());
+//        try {
+//            preStandardContents = standardContents.subList(0 , standardDO.getStart());
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println(targetDO.getClazz() + "_" + targetDO.getStart() +
+//                    "_" + targetDO.getEnd() + "_" +targetDO.getPackageName() + "_" + targetDO.getAbsolutePath());
+//            System.out.println(standardDO.getClazz() + "_" + standardDO.getStart() +
+//                    "_" + standardDO.getEnd() + "_" +standardDO.getPackageName() + "_" +standardDO.getAbsolutePath());
+//            System.out.println(targetContents.size() + "_" + standardContents.size());
+//        }
+
         List<String> postStandardContents = standardContents.subList(standardDO.getEnd() - 1 , standardContents.size());
 
         List<String> preTargetTokens = new ArrayList<>();

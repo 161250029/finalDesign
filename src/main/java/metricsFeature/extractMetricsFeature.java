@@ -1,6 +1,5 @@
 package metricsFeature;
 
-import jnr.ffi.annotations.In;
 import metricsFeature.model.MetricsFeature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,8 +21,14 @@ public class extractMetricsFeature {
 
     private static Map<String , MetricsFeature> map = new HashMap<>();
 
-    public static Map<String , MetricsFeature> extract(String metricsFilePath) {
+    public static void extract() {
         initValidFileNames();
+        extractDetailMetrics(Config.metricsDetailXmlFilePath);
+        extractGeneralMetrics(Config.metricsGeneralXmlFilePath);
+        toExcel();
+    }
+
+    public static void extractDetailMetrics(String metricsFilePath) {
         Document document = DomTool.getDocument(metricsFilePath);
         NodeList files = document.getElementsByTagName("file");
         for (int i = 0 ; i < files.getLength() ; i ++) {
@@ -34,6 +39,7 @@ public class extractMetricsFeature {
             }
             NodeList methods = cur.getElementsByTagName("method");
             MetricsFeature metricsFeature = new MetricsFeature();
+            metricsFeature.setFileName(fileName);
             for (int j = 0 ; j < methods.getLength() ; j ++) {
                 Element method = (Element) methods.item(j);
                 String name = method.getAttribute("name");
@@ -47,12 +53,32 @@ public class extractMetricsFeature {
                 metricsFeature.setDepth(Integer.parseInt(method.getElementsByTagName("maximum_depth").item(0).getTextContent()));
                 metricsFeature.setStatementNum(Integer.parseInt(method.getElementsByTagName("statements").item(0).getTextContent()));
             }
+            // 方法度量为空则默认度量值都为0
             map.put(fileName , metricsFeature);
         }
-        System.out.println(map.keySet().size());
+    }
+
+    public static void extractGeneralMetrics(String metricsFilePath) {
+        Document document = DomTool.getDocument(metricsFilePath);
+        NodeList files = document.getElementsByTagName("file");
+        for (int i = 0 ; i < files.getLength() ; i ++) {
+            Element cur = (Element) files.item(i);
+            String fileName = cur.getAttribute("file_name");
+            if (!validFileNames.contains(fileName)) {
+                continue;
+            }
+            MetricsFeature metricsFeature = map.get(fileName);
+            NodeList metrics = cur.getElementsByTagName("metric");
+            int lineNum = Integer.parseInt(metrics.item(0).getTextContent());
+            int branchStatementNum = Integer.parseInt(metrics.item(2).getTextContent());
+            metricsFeature.setLineNum(lineNum);
+            metricsFeature.setBranchStatementNum(branchStatementNum);
+        }
+    }
+
+    private static void toExcel() {
         List<MetricsFeature> list = new ArrayList<MetricsFeature>(map.values());
-        ExcelUtil.writeExcelWithTitle(list , "test.xls");
-        return map;
+        ExcelUtil.writeExcelWithTitle(list , Config.metricsXslFilePath);
     }
 
     private static void initValidFileNames() {
@@ -60,6 +86,6 @@ public class extractMetricsFeature {
     }
 
     public static void main(String[] args) {
-        extract(Config.metricsSourceFilePath);
+        extract();
     }
 }

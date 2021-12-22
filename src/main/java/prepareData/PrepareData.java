@@ -31,7 +31,7 @@ public class PrepareData {
     private Map<String , List<String>> projectMap = new HashMap<>();
 
     public static void main(String[] args) {
-        new PrepareData().labelNewProject();
+        new PrepareData().sliceFuncBody();
     }
 
     private void init() {
@@ -99,9 +99,10 @@ public class PrepareData {
             System.out.println("----标记开始----");
             for (int i = 0 ; i < versions.size() - 1 ; i ++) {
                 System.out.println("----" + project + ":" + versions.get(i) + "----");
+                String projectDirPath = Config.dirPath + project + "\\";
                 String targetVersion = versions.get(i);
-                String targetDirPath = Config.dirPath + project + "\\";
-                List<AlarmDO> targetDOs = DomTool.getAlarmDOs(targetDirPath + targetVersion + ".xml");
+                String targetDirPath = projectDirPath  + targetVersion + "\\";
+                List<AlarmDO> targetDOs = DomTool.getAlarmDOs(projectDirPath + targetVersion + ".xml");
                 System.out.println("----计算待标文件路径----");
                 targetDOs.forEach(targetDO -> {
                     targetDO.setPackageName(targetVersion);
@@ -113,8 +114,8 @@ public class PrepareData {
                 List<List<AlarmDO>> standardDOLists = new ArrayList<>();
                 for(int j = i + 1 ; j < versions.size() ; j ++) {
                     String standardVersion = versions.get(j);
-                    String standardDirPath = Config.dirPath + project +  "\\";
-                    List<AlarmDO> standardDOs = DomTool.getAlarmDOs(standardDirPath + standardVersion + ".xml");
+                    String standardDirPath = projectDirPath + standardVersion +  "\\";
+                    List<AlarmDO> standardDOs = DomTool.getAlarmDOs(projectDirPath + standardVersion + ".xml");
                     System.out.println("----计算基准文件路径----");
                     standardDOs.forEach(standardDO -> {
                         standardDO.setPackageName(standardVersion);
@@ -133,6 +134,61 @@ public class PrepareData {
             }
         });
     }
+
+    public void doAddSlice() {
+        init();
+        projectMap.forEach((project , versions) -> {
+            System.out.println("----程序切片开始----");
+            versions.forEach(version -> {
+                String labelFilePath = Config.dirPath + project + "\\" + version  + "\\" + Config.labelName;
+                List<AlarmVO> alarmVOs = ExcelUtil.getAlarmVO(labelFilePath);
+                List<String> jars = getJars(Config.dirPath + project + "\\" + version);
+                List<File> apps = new ArrayList<>();
+                jars.forEach(jar -> {
+                    apps.add(new File(jar));
+                });
+                alarmVOs.forEach(alarmVO -> {
+                    try {
+                        JoanaSlicer slicer = new JoanaSlicer();
+                        slicer.config(apps,null , null);
+                        List<Integer> slices = slicer.computeSlice(alarmVO.getFunc(), alarmVO.getLocation());
+//                        String slicesContent = SliceHandler.sliceFile(new File(alarmVO.getAbsolutePath()) , alarmVO.getFunc().getMethod() , slices);
+                        String content = SliceHandler.sliceFile(new File(alarmVO.getAbsolutePath()) , alarmVO.getFunc().getMethod() ,slices);
+                        FileTool.write_content(
+                                Config.sliceDirPath +  generateFileName(project + "-" +alarmVO.getPackageName() ,
+                                        alarmVO.getFileName().split("\\.")[0] ,
+                                        alarmVO.getType(),
+                                        alarmVO.getDesc(),
+                                        alarmVO.getPriority(),
+//                                alarmVO.getFunc().getMethod(),
+                                        String.valueOf(alarmVO.getLocation().getStartLine()),
+                                        String.valueOf(alarmVO.getLocation().getEndLine()),
+                                        String.valueOf(alarmVO.isPositive())) , content);
+                    } catch (ClassHierarchyException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (SlicerException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println(
+                                generateFileName(alarmVO.getPackageName() ,
+                                        alarmVO.getFileName().split("\\.")[0] ,
+                                        alarmVO.getType(),
+                                        alarmVO.getDesc(),
+                                        alarmVO.getPriority(),
+//                                alarmVO.getFunc().getMethod(),
+                                        String.valueOf(alarmVO.getLocation().getStartLine()),
+                                        String.valueOf(alarmVO.getLocation().getEndLine()),
+                                        String.valueOf(alarmVO.isPositive()))
+                        );
+                    }
+                });
+            });
+        });
+    }
+
 
     public void doSlice() {
         init();

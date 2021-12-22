@@ -41,6 +41,20 @@ public class TextBasedStrategy implements Strategy{
         List<String> targetContents = FileTool.readRangeLine(targetDO.getAbsolutePath() , targetDO.getStart() , targetDO.getEnd());
         List<String> standardContents = FileTool.readRangeLine(standardDO.getAbsolutePath() , standardDO.getStart() , standardDO.getEnd());
         // 比对两个警告对应的代码是否一致
+        if(standardContents == null) {
+            return false;
+        }
+
+//        try {
+//            System.out.println("textbased " + targetDO.getClazz()+ " " + standardDO.getClazz() + " " + targetContents.retainAll(standardContents));
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println(targetDO.getClazz() + "_" + targetDO.getStart() +
+//                    "_" + targetDO.getEnd() + "_" +targetDO.getPackageName() + "_" + targetDO.getAbsolutePath());
+//            System.out.println(standardDO.getClazz() + "_" + standardDO.getStart() +
+//                    "_" + standardDO.getEnd() + "_" +standardDO.getPackageName() + "_" +standardDO.getAbsolutePath());
+//        }
+
         System.out.println("textbased " + targetDO.getClazz()+ " " + standardDO.getClazz() + " " + targetContents.retainAll(standardContents));
         return targetContents.retainAll(standardContents);
     }

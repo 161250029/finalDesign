@@ -11,13 +11,8 @@ public class Formatter {
         nodes.sort(Comparator.comparingInt(sdgNode -> sdgNode.getId()));
         StringBuilder result = new StringBuilder();
         for (SDGNode node : slice) {
-            result.append(node).append(" :: ").append(node.getKind()).append(" :: ").append(node.getOperation()).append(" :: ").append(node.getType()).append(" :: ").append(node.getLabel()).append("\n");
+            result.append(node.getKind()).append("::").append(node.getOperation()).append("::").append(node.getType()).append("::").append(node.getLabel()).append("\n");
         }
         return result.toString();
     }
-
-    public void dfs(Collection<SDGNode> slice, Func func){
-
-    }
-
 }

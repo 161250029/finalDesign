@@ -88,6 +88,7 @@ public class JoanaSlicer implements Slicer {
 //            System.out.println(node.getSource() + "_" + node.getSr());
             slices.add(node.getSr());
         }
+        System.out.println(Formatter.prepareSliceForEncoding(slice));
         List<Integer> result = new ArrayList<>(slices);
         return result;
     }
@@ -288,16 +289,25 @@ public class JoanaSlicer implements Slicer {
     public static void main(String[] args) throws ClassHierarchyException, IOException, SlicerException {
         List<File> test = new ArrayList<>();
         test.add(new File("D:\\DataSet\\commons-scxml\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\target\\commons-scxml2-2.0-SNAPSHOT.jar"));
+//        JoanaSlicer slicer = new JoanaSlicer();
+//        slicer.config(test , null , null);
+//        List<Integer> slices = new ArrayList<>();
+//        slices = slicer.computeSlice(new Func("org.apache.commons.scxml2.test.StandaloneUtils" , "execute" , "(Ljava/lang/String;Lorg/apache/commons/scxml2/Evaluator;)V") ,
+//                new Location("org/apache/commons/scxml2/test/StandaloneUtils.java" , 89 , 89));
+//        System.out.println(slices);
+//        String str = SliceHandler.sliceFile(new File("D:\\DataSet\\commons-scxml\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\src\\main\\java\\org\\apache\\commons\\scxml2\\test\\StandaloneUtils.java") ,
+//                "execute" ,  slices);
+//        System.out.println(str);
+
+
+//        D:\DataSet\commons-io\commons-io-b5990be69139f0b04919bc097144a105051aafcc\commons-io-b5990be69139f0b04919bc097144a105051aafcc\src\main\java\org\apache\commons\io
+
+        test.add(new File("D:\\DataSet\\commons-io\\commons-io-b5990be69139f0b04919bc097144a105051aafcc\\commons-io-b5990be69139f0b04919bc097144a105051aafcc\\target\\commons-io-2.7-SNAPSHOT.jar"));
         JoanaSlicer slicer = new JoanaSlicer();
         slicer.config(test , null , null);
         List<Integer> slices = new ArrayList<>();
-        slices = slicer.computeSlice(new Func("org.apache.commons.scxml2.test.StandaloneUtils" , "execute" , "(Ljava/lang/String;Lorg/apache/commons/scxml2/Evaluator;)V") ,
-                new Location("org/apache/commons/scxml2/test/StandaloneUtils.java" , 89 , 89));
+        slices = slicer.computeSlice(new Func("org.apache.commons.io.FileUtils" , "doCopyFile" , "(Ljava/io/File;Ljava/io/File;Z)V") ,
+                new Location("org/apache/commons/io/FileUtils.java" , 1156 , 1156));
         System.out.println(slices);
-        String str = SliceHandler.sliceFile(new File("D:\\DataSet\\commons-scxml\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\commons-scxml-d561e67d8c01f94313f4231e635e4edd3e91e73e\\src\\main\\java\\org\\apache\\commons\\scxml2\\test\\StandaloneUtils.java") ,
-                "execute" ,  slices);
-        System.out.println(str);
-
-
     }
 }
